@@ -50,7 +50,7 @@ artifacts/
 *.ilk
 *.meta
 *.obj
-!Iron_Man.obj #Except for Iron_Man.obj
+!Iron_Man.obj
 *.pch
 *.pdb
 *.pgc
