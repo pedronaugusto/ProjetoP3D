@@ -7,7 +7,6 @@ Camera::Camera(glm::vec3 cameraPos, glm::vec3 cameraTarget, glm::vec3 up){
 	this->up = up;
 }
 
-
 Camera::~Camera(){
 
 }
@@ -35,14 +34,17 @@ void Camera::Update(GLFWwindow *window) {
 	delta_time = current_frame - last_frame;
 	last_frame = current_frame;
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		camera_pos.y += vertical_speed * delta_time;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	}
+	else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 		camera_pos.y -= vertical_speed * delta_time;
+	}
+
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
 		angle -= speed * delta_time;
 	}
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+	else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 		angle += speed * delta_time;
 	}
 
