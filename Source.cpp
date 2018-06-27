@@ -16,6 +16,7 @@ using namespace std;
 #include "include/glm/gtx/transform.hpp"
 #include "include/glm/gtc/matrix_transform.hpp"
 #include "include/glm/gtc/type_ptr.hpp"
+#include "include/glm/gtc/matrix_inverse.hpp"
 
 #include "Model.h"
 #include "Camera.h"
@@ -32,7 +33,7 @@ GLFWmonitor *monitor;
 GLFWwindow *window;
 
 GLuint program;
-GLuint matrix;
+GLuint mv_location, mvp_location, normalMatrix_location;
 
 //Camera
 glm::vec3 camera_pos = glm::vec3(6.0f, 4.0f, 6.0f);
@@ -45,8 +46,6 @@ Camera camera(camera_pos, camera_target, up);
 #pragma region Matrices
 glm::mat4 model_matrix = glm::mat4(1.0f);
 
-glm::mat4 view_matrix;
-
 //ProjectionMatrix//
 float fov = 45; //field of view
 float aspect_ratio = (float)WIDTH / (float)HEIGHT; //aspectRatio
@@ -58,7 +57,9 @@ glm::mat4 projection_matrix = glm::perspective(glm::radians(fov), aspect_ratio, 
 
 
 //MVP//
+glm::mat4 mv_matrix;
 glm::mat4 mvp_matrix;
+glm::mat3 normal_matrix;
 //---//
 #pragma endregion
 
@@ -91,13 +92,12 @@ int main(void) {
 	Init();
 
 	do {
-
 		Update();
 		Draw();
 
 		glfwSwapBuffers(window);
 
-	}while(glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
+	} while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
 		glfwWindowShouldClose(window) == 0);
 
 	glfwTerminate();
@@ -111,21 +111,34 @@ void Init(void) {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
-
 	glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
-	
+
 	ShaderInfo  shaders[] = {
 		{ GL_VERTEX_SHADER,   "shaders/vertexShader.vert" },
 		{ GL_FRAGMENT_SHADER, "shaders/fragmentShader.frag" },
 		{ GL_NONE, NULL }
 	};
 	program = LoadShaders(shaders);
-	matrix = glGetUniformLocation(program, "MVP");
-	
+	//if (!program) exit(EXIT_FAILURE);
+	//glUseProgram(program);
+
+	// Inicializa as matrizes
+	mv_matrix = camera.view_matrix * model_matrix;
+	mvp_matrix = projection_matrix * camera.view_matrix * model_matrix;
+	normal_matrix = glm::inverseTranspose(glm::mat3(mv_matrix));
+
+	// Atribuir valores aos uniforms
+	mv_location = glGetProgramResourceLocation(program, GL_UNIFORM, "ModelView"); // modelview
+	glProgramUniformMatrix4fv(program, mv_location, 1, GL_FALSE, glm::value_ptr(mv_matrix));
+	mvp_location = glGetProgramResourceLocation(program, GL_UNIFORM, "ModelViewProjection"); // mvp
+	glProgramUniformMatrix4fv(program, mv_location, 1, GL_FALSE, glm::value_ptr(mvp_matrix));
+	normalMatrix_location = glGetProgramResourceLocation(program, GL_UNIFORM, "NormalMatrix");
+	glProgramUniformMatrix3fv(program, mv_location, 1, GL_FALSE, glm::value_ptr(normal_matrix));
+
 	iron_man.Init(program);
 	camera.Init();
+	// light Init
 
-	mvp_matrix = projection_matrix * camera.view_matrix * model_matrix;
 }
 
 void Update(void) {
@@ -133,17 +146,22 @@ void Update(void) {
 
 	camera.Update(window);
 
+	mv_matrix = camera.view_matrix * model_matrix;
 	mvp_matrix = projection_matrix * camera.view_matrix * model_matrix;
+	normal_matrix = glm::inverseTranspose(glm::mat3(mv_matrix));
+
+	// actualizar luzes
 }
 
 void Draw(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	glUniformMatrix4fv(matrix, 1, GL_FALSE, &mvp_matrix[0][0]);
+
+	glProgramUniformMatrix4fv(program, mv_location, 1, GL_FALSE, glm::value_ptr(mv_matrix));
+	glProgramUniformMatrix4fv(program, mvp_location, 1, GL_FALSE, glm::value_ptr(mvp_matrix));
+	glProgramUniformMatrix3fv(program, normalMatrix_location, 1, GL_FALSE, glm::value_ptr(normal_matrix));
 
 	iron_man.Draw(program);
-
 }
 
 void Cleanup(void) {
