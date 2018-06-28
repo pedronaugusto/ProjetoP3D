@@ -16,7 +16,8 @@ Model::~Model()
 void Model::Init(GLuint program) {
 		
 	Material material(path_to_mtl);
-	material.Init();
+	material.Init(program);
+	
 	
 	glGenVertexArrays(1, &vertex_array);
 	glBindVertexArray(vertex_array);

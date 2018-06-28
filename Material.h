@@ -23,7 +23,7 @@ public:
 	Material(const char *path);
 	~Material();
 
-	void Init();
+	void Init(GLuint program);
 private:
 	float ns;
 	glm::vec3 ka;
@@ -38,6 +38,7 @@ private:
 
 	void LoadMtl(const char * path);
 	void LoadTexture(const char * path);
+	void LoadLightningInfo(GLuint program);
 };
 
 #endif

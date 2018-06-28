@@ -116,6 +116,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Lightning.cpp" />
     <ClCompile Include="LoadShaders.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -124,6 +125,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="include\stb_image.h" />
+    <ClInclude Include="Lightning.h" />
     <ClInclude Include="LoadShaders.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Model.h" />

@@ -15,11 +15,11 @@ using namespace std;
 #include "include/glm/glm.hpp"
 #include "include/glm/gtx/transform.hpp"
 #include "include/glm/gtc/matrix_transform.hpp"
-#include "include/glm/gtc/type_ptr.hpp"
 #include "include/glm/gtc/matrix_inverse.hpp"
 
 #include "Model.h"
 #include "Camera.h"
+#include "Lightning.h"
 #include "LoadShaders.h"
 
 void Init(void);
@@ -34,6 +34,7 @@ GLFWwindow *window;
 
 GLuint program;
 GLuint mv_location, mvp_location, normalMatrix_location;
+GLuint view;
 
 //Camera
 glm::vec3 camera_pos = glm::vec3(6.0f, 4.0f, 6.0f);
@@ -42,6 +43,7 @@ glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
 Model iron_man("model/Iron_Man.obj");
 Camera camera(camera_pos, camera_target, up);
+Lightning light;
 
 #pragma region Matrices
 glm::mat4 model_matrix = glm::mat4(1.0f);
@@ -72,7 +74,7 @@ int main(void) {
 
 	monitor = glfwGetPrimaryMonitor();
 
-	window = glfwCreateWindow(WIDTH, HEIGHT, "PROJETO P3D", monitor, NULL);
+	window = glfwCreateWindow(WIDTH, HEIGHT, "PROJETO P3D", NULL, NULL);
 	if (window == NULL) {
 		glfwTerminate();
 		return -1;
@@ -119,26 +121,24 @@ void Init(void) {
 		{ GL_NONE, NULL }
 	};
 	program = LoadShaders(shaders);
-	//if (!program) exit(EXIT_FAILURE);
-	//glUseProgram(program);
 
-	// Inicializa as matrizes
 	mv_matrix = camera.view_matrix * model_matrix;
 	mvp_matrix = projection_matrix * camera.view_matrix * model_matrix;
 	normal_matrix = glm::inverseTranspose(glm::mat3(mv_matrix));
 
-	// Atribuir valores aos uniforms
-	mv_location = glGetProgramResourceLocation(program, GL_UNIFORM, "ModelView"); // modelview
-	glProgramUniformMatrix4fv(program, mv_location, 1, GL_FALSE, glm::value_ptr(mv_matrix));
-	mvp_location = glGetProgramResourceLocation(program, GL_UNIFORM, "ModelViewProjection"); // mvp
-	glProgramUniformMatrix4fv(program, mv_location, 1, GL_FALSE, glm::value_ptr(mvp_matrix));
-	normalMatrix_location = glGetProgramResourceLocation(program, GL_UNIFORM, "NormalMatrix");
-	glProgramUniformMatrix3fv(program, mv_location, 1, GL_FALSE, glm::value_ptr(normal_matrix));
+	view = glGetUniformLocation(program, "View");
+	glUniformMatrix4fv(view, 1, GL_FALSE, &camera.view_matrix[0][0]);
 
+	mv_location = glGetUniformLocation(program, "ModelView");
+	glUniformMatrix4fv(mv_location, 1, GL_FALSE, &mv_matrix[0][0]);
+	mvp_location = glGetUniformLocation(program,"MVP");
+	glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp_matrix[0][0]);
+	normalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
+	glUniformMatrix3fv(normalMatrix_location, 1, GL_FALSE, &normal_matrix[0][0]);
+	
 	iron_man.Init(program);
 	camera.Init();
-	// light Init
-
+	light.Init(program);
 }
 
 void Update(void) {
@@ -150,16 +150,24 @@ void Update(void) {
 	mvp_matrix = projection_matrix * camera.view_matrix * model_matrix;
 	normal_matrix = glm::inverseTranspose(glm::mat3(mv_matrix));
 
-	// actualizar luzes
+	mv_location = glGetUniformLocation(program, "ModelView");
+	glUniformMatrix4fv(mv_location, 1, GL_FALSE, &mv_matrix[0][0]);
+	mvp_location = glGetUniformLocation(program, "MVP");
+	glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp_matrix[0][0]);
+	normalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
+	glUniformMatrix3fv(normalMatrix_location, 1, GL_FALSE, &normal_matrix[0][0]);
+
+	light.Update(program, window);
 }
 
 void Draw(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glProgramUniformMatrix4fv(program, mv_location, 1, GL_FALSE, glm::value_ptr(mv_matrix));
-	glProgramUniformMatrix4fv(program, mvp_location, 1, GL_FALSE, glm::value_ptr(mvp_matrix));
-	glProgramUniformMatrix3fv(program, normalMatrix_location, 1, GL_FALSE, glm::value_ptr(normal_matrix));
+	glUniformMatrix4fv(mv_location, 1, GL_FALSE, &mv_matrix[0][0]);
+	glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp_matrix[0][0]);
+	glUniformMatrix3fv(normalMatrix_location, 1, GL_FALSE, &normal_matrix[0][0]);
+	glUniformMatrix4fv(view, 1, GL_FALSE, &camera.view_matrix[0][0]);
 
 	iron_man.Draw(program);
 }
