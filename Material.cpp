@@ -95,7 +95,7 @@ void Material::LoadTexture(const char *path) {
 
 		int width, height, n_channels;
 		unsigned char *image_data = stbi_load(path, &width, &height, &n_channels, 0);
-
+		
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data);
 
 		stbi_image_free(image_data);

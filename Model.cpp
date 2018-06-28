@@ -33,13 +33,12 @@ void Model::Init(GLuint program) {
 	glGenBuffers(1, &normal_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, normal_buffer);
 	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
-		
-	glUseProgram(program);
+	
 }
 
 
 void Model::Draw(GLuint program) {
-			
+
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
 	glVertexAttribPointer(
@@ -73,7 +72,6 @@ void Model::Draw(GLuint program) {
 		(void*)0                          
 	);
 
-	glUseProgram(program);
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 
 	glDisableVertexAttribArray(0);

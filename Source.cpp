@@ -16,6 +16,7 @@ using namespace std;
 #include "include/glm/gtx/transform.hpp"
 #include "include/glm/gtc/matrix_transform.hpp"
 #include "include/glm/gtc/matrix_inverse.hpp"
+#include "include/glm/gtc/type_ptr.hpp"
 
 #include "Model.h"
 #include "Camera.h"
@@ -61,7 +62,7 @@ glm::mat4 projection_matrix = glm::perspective(glm::radians(fov), aspect_ratio, 
 //MVP//
 glm::mat4 mv_matrix;
 glm::mat4 mvp_matrix;
-glm::mat3 normal_matrix;
+glm::mat4 normal_matrix;
 //---//
 #pragma endregion
 
@@ -114,6 +115,8 @@ void Init(void) {
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
 	glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
+	
+	glUseProgram(program);
 
 	ShaderInfo  shaders[] = {
 		{ GL_VERTEX_SHADER,   "shaders/vertexShader.vert" },
@@ -135,6 +138,7 @@ void Init(void) {
 	glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp_matrix[0][0]);
 	normalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
 	glUniformMatrix3fv(normalMatrix_location, 1, GL_FALSE, &normal_matrix[0][0]);
+
 	
 	iron_man.Init(program);
 	camera.Init();
@@ -142,13 +146,18 @@ void Init(void) {
 }
 
 void Update(void) {
+
 	glfwPollEvents();
+	glUseProgram(program);
 
 	camera.Update(window);
 
 	mv_matrix = camera.view_matrix * model_matrix;
 	mvp_matrix = projection_matrix * camera.view_matrix * model_matrix;
 	normal_matrix = glm::inverseTranspose(glm::mat3(mv_matrix));
+
+	view = glGetUniformLocation(program, "View");
+	glUniformMatrix4fv(view, 1, GL_FALSE, &camera.view_matrix[0][0]);
 
 	mv_location = glGetUniformLocation(program, "ModelView");
 	glUniformMatrix4fv(mv_location, 1, GL_FALSE, &mv_matrix[0][0]);
@@ -164,10 +173,6 @@ void Draw(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glUniformMatrix4fv(mv_location, 1, GL_FALSE, &mv_matrix[0][0]);
-	glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp_matrix[0][0]);
-	glUniformMatrix3fv(normalMatrix_location, 1, GL_FALSE, &normal_matrix[0][0]);
-	glUniformMatrix4fv(view, 1, GL_FALSE, &camera.view_matrix[0][0]);
 
 	iron_man.Draw(program);
 }

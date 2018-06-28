@@ -17,7 +17,7 @@ uniform mat4 View;
 
 
 void main(){
-    vPositionEye = (ModelView * vec4(vertexPosition_modelspace, 1.0)).xyz;
+    vPositionEye = vertexPosition_modelspace;
     vNormalEye = normalize(NormalMatrix * vertexNormal);
 	
     gl_Position =  MVP * vec4(vertexPosition_modelspace,1);

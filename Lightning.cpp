@@ -14,22 +14,22 @@ Lightning::~Lightning()
 void Lightning::Init(GLuint program) {
 
 	// Fonte de luz ambiente global
-	glUniform3fv(glGetUniformLocation( GL_UNIFORM, "ambientLight.ambient"), 1, &(glm::vec3(0.1, 0.1, 0.1))[0]);
+	glUniform3fv(glGetUniformLocation( program, "ambientLight.ambient"), 1, &(glm::vec3(0.1, 0.1, 0.1))[0]);
 
 	// Fonte de luz direcional
-	glUniform3fv( glGetUniformLocation( GL_UNIFORM, "directionalLight.direction"), 1, &(glm::vec3(1.0, 0.0, 0.0))[0]);
-	glUniform3fv( glGetUniformLocation( GL_UNIFORM, "directionalLight.ambient"), 1, &(glm::vec3(0.2, 0.2, 0.2))[0]);
-	glUniform3fv( glGetUniformLocation( GL_UNIFORM, "directionalLight.diffuse"), 1, &(glm::vec3(1.0, 1.0, 1.0))[0]);
-	glUniform3fv( glGetUniformLocation( GL_UNIFORM, "directionalLight.specular"), 1, &(glm::vec3(1.0, 1.0, 1.0))[0]);
+	glUniform3fv( glGetUniformLocation( program, "directionalLight.direction"), 1, &(glm::vec3(1.0, 0.0, 0.0))[0]);
+	glUniform3fv( glGetUniformLocation( program, "directionalLight.ambient"), 1, &(glm::vec3(0.2, 0.2, 0.2))[0]);
+	glUniform3fv( glGetUniformLocation( program, "directionalLight.diffuse"), 1, &(glm::vec3(1.0, 1.0, 1.0))[0]);
+	glUniform3fv( glGetUniformLocation( program, "directionalLight.specular"), 1, &(glm::vec3(1.0, 1.0, 1.0))[0]);
 
 	// Fonte de luz pontual
-	glUniform3fv( glGetUniformLocation( GL_UNIFORM, "pointLight.position"), 1, &point_pos[0]);
-	glUniform3fv( glGetUniformLocation( GL_UNIFORM, "pointLight.ambient"), 1, &(glm::vec3(0.1, 0.1, 0.1))[0]);
-	glUniform3fv( glGetUniformLocation( GL_UNIFORM, "pointLight.diffuse"), 1, &(glm::vec3(1.0, 1.0, 1.0))[0]);
-	glUniform3fv( glGetUniformLocation( GL_UNIFORM, "pointLight.specular"), 1, &(glm::vec3(1.0, 1.0, 1.0))[0]);
-	glUniform1f( glGetUniformLocation( GL_UNIFORM, "pointLight.constant"), 1.0f);
-	glUniform1f( glGetUniformLocation( GL_UNIFORM, "pointLight.linear"), 0.06f);
-	glUniform1f( glGetUniformLocation( GL_UNIFORM, "pointLight.quadratic"), 0.02f);
+	glUniform3fv( glGetUniformLocation( program, "pointLight.position"), 1, &point_pos[0]);
+	glUniform3fv( glGetUniformLocation( program, "pointLight.ambient"), 1, &(glm::vec3(0.1, 0.1, 0.1))[0]);
+	glUniform3fv( glGetUniformLocation( program, "pointLight.diffuse"), 1, &(glm::vec3(1.0, 1.0, 1.0))[0]);
+	glUniform3fv( glGetUniformLocation( program, "pointLight.specular"), 1, &(glm::vec3(1.0, 1.0, 1.0))[0]);
+	glUniform1f( glGetUniformLocation( program, "pointLight.constant"), 1.0f);
+	glUniform1f( glGetUniformLocation( program, "pointLight.linear"), 0.06f);
+	glUniform1f( glGetUniformLocation( program, "pointLight.quadratic"), 0.02f);
 
 	/*
 	// Fonte de luz Conica
@@ -44,6 +44,7 @@ void Lightning::Init(GLuint program) {
 	glUniform1f( glGetUniformLocation( GL_UNIFORM, "spotLight.linear"), 0.06f);
 	glUniform1f( glGetUniformLocation( GL_UNIFORM, "spotLight.quadratic"), 0.02f);
 	*/
+
 }
 
 void Lightning::Update(GLuint program, GLFWwindow* window) {

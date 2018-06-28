@@ -9,6 +9,7 @@ using namespace std;
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "include/glm/glm.hpp"
+#include "include/glm/gtc/type_ptr.hpp"
 
 #ifndef PROJETOP3D_LIGHTNING_H
 #define PROJETOP3D_LIGHTNING_H
