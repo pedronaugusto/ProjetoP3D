@@ -27,9 +27,11 @@ public:
 	void Init();
 	void Update(GLFWwindow *window);
 
-	glm::mat4 view_matrix;
-private:
+	glm::mat4 view_matrix;	
+	glm::mat4 projection_matrix;
 	glm::vec3 camera_pos;
+private:
+
 	glm::vec3 camera_target;
 	glm::vec3 up;
 

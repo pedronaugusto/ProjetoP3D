@@ -26,6 +26,12 @@ void Camera::Init() {
 		camera_target,
 		up
 	);
+	//ProjectionMatrix//
+	float fov = 45; //field of view
+	float aspect_ratio = (float)WIDTH / (float)HEIGHT; //aspectRatio
+	float near = 0.1f; //near
+	float far = 100; //far
+	projection_matrix = glm::perspective(glm::radians(fov), aspect_ratio, near, far);
 }
 
 void Camera::Update(GLFWwindow *window) {

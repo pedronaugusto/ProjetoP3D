@@ -26,7 +26,6 @@ public:
 	~Model();
 
 	void Init(GLuint program);
-	void Update();
 	void Draw(GLuint program);
 	
 	GLuint vertex_array;

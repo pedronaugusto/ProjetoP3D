@@ -51,12 +51,10 @@ struct DirectionalLight	{
 	vec3 diffuse;		// Componente de luz difusa
 	vec3 specular;		// Componente de luz especular
 };
-uniform DirectionalLight directionalLight; // Fonte de luz direcional
+uniform DirectionalLight directionalLight;
 
 
-/*
-// Estrutura de uma fonte de luz cónica
-struct LuzConica {
+struct SpotLight {
 	vec3 position;		
 	vec3 ambient;		
 	vec3 diffuse;		
@@ -65,18 +63,18 @@ struct LuzConica {
 	float linear;		
 	float quadratic;	
 
-	float Cutoff, Exponent;
+	float cutOff, exponent;
 	vec3 spotDirection;
 };
 
 uniform SpotLight spotLight;
-*/
+
 
 
 vec4 calcAmbientLight(AmbientLight light);
 vec4 calcDirectionalLight(DirectionalLight light);
 vec4 calcPointLight(PointLight light);
-//vec4 calculoLuzConica(LuzConica light);
+vec4 calcSpotLight(SpotLight light);
 
 
 vec4 light[4];
@@ -84,115 +82,93 @@ vec4 light[4];
 void main(){
 	vec4 emissive = vec4(mat.emissive, 1.0);
 
-	//fonte de luz ambiente
 	light[0] = calcAmbientLight(ambientLight);
-	//fonte de luz direcional
 	light[1] = calcDirectionalLight(directionalLight);
-	//fonte de luz Pontual
 	light[2] = calcPointLight(pointLight);
-	//fonte de luz Conica
-	//light[3] = calculoLuzConica(luzconica);
+	light[3] = calcSpotLight(spotLight);
 
-	fragColor = (emissive + light[0] + light[1]  + light[2] + light[3] ) * texture(textureSampler, UV);
+	fragColor = (light[0] + light[1]  + light[2] + light[3] ) * texture(textureSampler, UV);
 }
 
 vec4 calcAmbientLight(AmbientLight light) {
-	// Cálculo da contribuição da fonte de luz ambiente global, para a cor do objeto.
 	vec4 ambient = vec4(mat.ambient + light.ambient, 1.0);
 	return ambient;
 }
 
 vec4 calcDirectionalLight(DirectionalLight light) {
-	// Cálculo da reflexão da componente da luz ambiente.
+	// ambient
 	vec4 ambient = vec4(mat.ambient + light.ambient, 1.0);
-
-	// Cálculo da reflexão da componente da luz difusa.
+	// luz difusa
 	vec3 lightDirectionEyeSpace = (View * vec4(light.direction, 0.0)).xyz;
 	vec3 L = normalize(-lightDirectionEyeSpace); // Direção inversa à da direção luz.
 	vec3 N = normalize(vNormalEye);
 	float NdotL = max(dot(N, L), 0.0);
 	vec4 diffuse = vec4(mat.diffuse * light.diffuse, 1.0) * NdotL;
 	
-	// Cálculo da reflexão da componente da luz especular.
-	// Como os cálculos estão a ser realizados nas coordenadas do olho, então a câmara está na posição (0,0,0).
-	// Resulta então:
-	//		(0,0,0) - vPositionEye
-	// Que pode ser simplificado como:
-	//		- vPositionEye
+	// luz especular
 	vec3 V = normalize(-vPositionEye);
-	//vec4 H = normalize(L + V);	// Modelo Blinn-Phong
 	vec3 R = reflect(-L, N);
 	float RdotV = max(dot(R, V), 0.0);
-	//float NdotH = max(dot(N, H), 0.0);	// Modelo Blinn-Phong
 	vec4 specular = pow(RdotV, mat.shininess) * vec4(light.specular * mat.specular, 1.0);
 
-	// Cálculo da contribuição da fonte de luz direcional para a cor final do fragmento.
 	return (ambient + diffuse + specular);
 }
 
 vec4 calcPointLight(PointLight light) {
-	// Cálculo da reflexão da componente da luz ambiente.
-	vec4 ambient = vec4(light.ambient , 1.0);
-
-	// Cálculo da reflexão da componente da luz difusa.
-	//vec3 lightPositionEyeSpace = mat3(View) * light.position;
+	// ambient
+	vec4 ambient = vec4(mat.ambient + light.ambient , 1.0);
+	// luz difusa
 	vec3 lightPositionEyeSpace = (View * vec4(light.position, 1.0)).xyz;
 	vec3 L = normalize(lightPositionEyeSpace - vPositionEye);
 	vec3 N = normalize(vNormalEye);
 	float NdotL = max(dot(N, L), 0.0);
 	vec4 diffuse = vec4(mat.diffuse , 1.0) * NdotL;
 
-	// Cálculo da reflexão da componente da luz especular.
-	// Como os cálculos estão a ser realizados nas coordenadas do olho, então a câmara está na posição (0,0,0).
-	// Resulta então:
-	//		(0,0,0) - vPositionEye
-	// Que pode ser simplificado como:
-	//		- vPositionEyeSpace
+	// luz especular
 	vec3 V = normalize(-vPositionEye);
-	//vec4 H = normalize(L + V);	// Modelo Blinn-Phong
 	vec3 R = reflect(-L, N);
 	float RdotV = max(dot(R, V), 0.0);
-	//float NdotH = max(dot(N, H), 0.0);	// Modelo Blinn-Phong
-	vec4 specular = pow(RdotV, mat.shininess) * vec4(mat.specular, 1.0);
+	vec4 specular = pow(RdotV, mat.shininess) * vec4(mat.specular * light.specular, 1.0);
 	
-	// attenuation
-	float dist = length(mat3(View) * light.position - vPositionEye);	// Cálculo da distância entre o ponto de luz e o vértice
+	// attenuattion
+	float dist = length(mat3(View) * light.position - vPositionEye);	
 	float attenuation = 1.0 / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
 
-	// Cálculo da contribuição da fonte de luz pontual para a cor final do fragmento.
 	return (attenuation * (ambient + diffuse + specular));
 }
 
-		/*
-		vec4 calculoLuzConica(LuzConica light)
-		{
-			cutoff = radians(clamp(light.Cutoff, 0.0, 45.0));
-			
-			//reflexão luz ambiente.
-			vec4 ambient = vec4(mat.ambient * light.ambient, 1.0);
+		
+vec4 calcSpotLight(SpotLight light)
+{
 
-			//reflexão luz difusa.
-			vec3 lightDirectionEyeSpace = (View * vec4(light.direction, 0.0)).xyz;
-			vec3 lightPositionEyeSpace = (View * vec4(light.position, 1.0)).xyz;
-			vec3 L = normalize(lightDirectionEyeSpace * (lightPositionEyeSpace - vPositionEye)); // direção luz, posição eye
-			vec3 N = normalize(vNormalEye);
-			float NdotL = max(dot(N, L), 0.0);
-			vec4 diffuse = vec4(mat.diffuse * light.diffuse, 1.0) * NdotL;
-			
-	         if(dot(N, L)> Cutoff)
-			{
-				//reflexão especular.
-				vec3 V = normalize(-vPositionEye);
-				vec3 R = reflect(L, N);
-				float RdotV = max(dot(R, V), 0.0);
-				vec4 specular = pow(RdotV, mat.shininess) * vec4(light.specular * mat.specular, 1.0);
-				
-				// atenuação
-				float dist = length(mat3(View) * light.position - vPositionEye);
-				float atenuacao = 1.0*(spotdirection * position) / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
-			}
-			return (atenuacao * (ambient + diffuse + specular));
+	// ambient
+	vec4 ambient = vec4(mat.ambient + light.ambient, 1.0);
+	// luz difusa
+	vec3 lightDirectionEyeSpace = (View * vec4(light.spotDirection, 0.0)).xyz;
+	vec3 lightPositionEyeSpace = (View * vec4(light.position, 1.0)).xyz;
+	vec3 L = normalize(lightDirectionEyeSpace * (lightPositionEyeSpace - vPositionEye)); // direção luz, posição eye
+	vec3 N = normalize(vNormalEye);
+	float NdotL = max(dot(N, L), 0.0);
+	vec4 diffuse = vec4(mat.diffuse +  light.diffuse, 1.0) * NdotL;
+	// luz especular
+	vec3 V = normalize(-vPositionEye);
+	vec3 R = reflect(-L, N);
+	float RdotV = max(dot(R, V), 0.0);
+	vec4 specular = pow(RdotV, mat.shininess) * vec4(light.specular * mat.specular, 1.0);
 
-		}
-		*/
+	// cutoff
+	float theta = dot(lightPositionEyeSpace, normalize(-light.spotDirection));
+	float epsilon = (light.cutOff - light.exponent);
+	float intensity = clamp((theta - light.exponent) / epsilon, 0.0,1.0);
+	diffuse *= intensity;
+	specular *= intensity;
+	// attenuattion
+	float dist = length(mat3(View) * light.position - vPositionEye);	
+	float attenuation = 1.0 / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
+
+			
+	return (attenuation * (ambient + diffuse + specular));
+
+}
+		
 

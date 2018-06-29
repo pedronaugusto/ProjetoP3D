@@ -49,16 +49,6 @@ Lightning light;
 #pragma region Matrices
 glm::mat4 model_matrix = glm::mat4(1.0f);
 
-//ProjectionMatrix//
-float fov = 45; //field of view
-float aspect_ratio = (float)WIDTH / (float)HEIGHT; //aspectRatio
-float near = 0.1f; //near
-float far = 100; //far
-
-glm::mat4 projection_matrix = glm::perspective(glm::radians(fov), aspect_ratio, near, far);
-//----------------//
-
-
 //MVP//
 glm::mat4 mv_matrix;
 glm::mat4 mvp_matrix;
@@ -124,7 +114,6 @@ void Init(void) {
 		{ GL_NONE, NULL }
 	};
 	program = LoadShaders(shaders);
-	//if (!program) exit(EXIT_FAILURE);
 	glUseProgram(program);
 
 	iron_man.Init(program);
@@ -132,7 +121,7 @@ void Init(void) {
 	light.Init(program);
 
 	mv_matrix = camera.view_matrix * model_matrix;
-	mvp_matrix = projection_matrix * camera.view_matrix * model_matrix;
+	mvp_matrix = camera.projection_matrix * camera.view_matrix * model_matrix;
 	normal_matrix = glm::inverseTranspose(glm::mat3(mv_matrix));
 
 	view = glGetProgramResourceLocation(program, GL_UNIFORM,"View");
@@ -140,7 +129,7 @@ void Init(void) {
 	mv_location = glGetUniformLocation(program, "ModelView");
 	glUniformMatrix4fv(mv_location, 1, GL_FALSE, glm::value_ptr(mv_matrix));
 	mvp_location = glGetUniformLocation(program, "MVP");
-	glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp_matrix[0][0]);
+	glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp_matrix));
 	normalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
 	glUniformMatrix3fv(normalMatrix_location, 1, GL_FALSE, glm::value_ptr(normal_matrix));
 
@@ -152,16 +141,14 @@ void Update(void) {
 	glUseProgram(program);
 
 	light.Update(program, window);
+
 	camera.Update(window);
-
-
 	mv_matrix = camera.view_matrix * model_matrix;
-	mvp_matrix = projection_matrix * camera.view_matrix * model_matrix;
+	mvp_matrix = camera.projection_matrix * camera.view_matrix * model_matrix;
 	normal_matrix = glm::inverseTranspose(glm::mat3(mv_matrix));
 
 	view = glGetUniformLocation(program, "View");
 	glUniformMatrix4fv(view, 1, GL_FALSE, &camera.view_matrix[0][0]);
-
 	mv_location = glGetUniformLocation(program, "ModelView");
 	glUniformMatrix4fv(mv_location, 1, GL_FALSE, &mv_matrix[0][0]);
 	mvp_location = glGetUniformLocation(program, "MVP");
@@ -174,7 +161,6 @@ void Update(void) {
 void Draw(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
 	iron_man.Draw(program);
 }

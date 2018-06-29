@@ -24,11 +24,8 @@ public:
 	void Update(GLuint program, GLFWwindow *window);
 
 private:
-	glm::vec3 point_pos = glm::vec3(0.0f, 2.0f, -2.5f);
-	bool ambientLight = false;
-	bool directLight = false;
-	bool ponctualLight = false;
-	bool spotLight; //tochange
+	glm::vec3 point_pos = glm::vec3(1.0f, 1.0f, -1.0f);
+	bool ambient_activ = false, directional_activ = false, point_activ = false, spot_activ = false;
 };
 
 #endif
