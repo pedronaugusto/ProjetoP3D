@@ -115,8 +115,8 @@ void Init(void) {
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
 	glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
-	
-	glUseProgram(program);
+
+
 
 	ShaderInfo  shaders[] = {
 		{ GL_VERTEX_SHADER,   "shaders/vertexShader.vert" },
@@ -124,25 +124,26 @@ void Init(void) {
 		{ GL_NONE, NULL }
 	};
 	program = LoadShaders(shaders);
+	//if (!program) exit(EXIT_FAILURE);
+	glUseProgram(program);
+
+	iron_man.Init(program);
+	camera.Init();
+	light.Init(program);
 
 	mv_matrix = camera.view_matrix * model_matrix;
 	mvp_matrix = projection_matrix * camera.view_matrix * model_matrix;
 	normal_matrix = glm::inverseTranspose(glm::mat3(mv_matrix));
 
-	view = glGetUniformLocation(program, "View");
-	glUniformMatrix4fv(view, 1, GL_FALSE, &camera.view_matrix[0][0]);
-
+	view = glGetProgramResourceLocation(program, GL_UNIFORM,"View");
+	glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(camera.view_matrix));
 	mv_location = glGetUniformLocation(program, "ModelView");
-	glUniformMatrix4fv(mv_location, 1, GL_FALSE, &mv_matrix[0][0]);
-	mvp_location = glGetUniformLocation(program,"MVP");
+	glUniformMatrix4fv(mv_location, 1, GL_FALSE, glm::value_ptr(mv_matrix));
+	mvp_location = glGetUniformLocation(program, "MVP");
 	glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp_matrix[0][0]);
 	normalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
-	glUniformMatrix3fv(normalMatrix_location, 1, GL_FALSE, &normal_matrix[0][0]);
+	glUniformMatrix3fv(normalMatrix_location, 1, GL_FALSE, glm::value_ptr(normal_matrix));
 
-	
-	iron_man.Init(program);
-	camera.Init();
-	light.Init(program);
 }
 
 void Update(void) {
@@ -150,7 +151,9 @@ void Update(void) {
 	glfwPollEvents();
 	glUseProgram(program);
 
+	light.Update(program, window);
 	camera.Update(window);
+
 
 	mv_matrix = camera.view_matrix * model_matrix;
 	mvp_matrix = projection_matrix * camera.view_matrix * model_matrix;
@@ -166,7 +169,6 @@ void Update(void) {
 	normalMatrix_location = glGetUniformLocation(program, "NormalMatrix");
 	glUniformMatrix3fv(normalMatrix_location, 1, GL_FALSE, &normal_matrix[0][0]);
 
-	light.Update(program, window);
 }
 
 void Draw(void) {

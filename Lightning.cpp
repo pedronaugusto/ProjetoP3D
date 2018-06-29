@@ -14,17 +14,17 @@ Lightning::~Lightning()
 void Lightning::Init(GLuint program) {
 
 	// Fonte de luz ambiente global
-	glUniform3fv(glGetUniformLocation( program, "ambientLight.ambient"), 1, &(glm::vec3(0.1, 0.1, 0.1))[0]);
+	glUniform3fv(glGetUniformLocation( program, "ambientLight.ambient"), 1, &(glm::vec3(1.0, 1.0, 1.0))[0]);
 
 	// Fonte de luz direcional
 	glUniform3fv( glGetUniformLocation( program, "directionalLight.direction"), 1, &(glm::vec3(1.0, 0.0, 0.0))[0]);
-	glUniform3fv( glGetUniformLocation( program, "directionalLight.ambient"), 1, &(glm::vec3(0.2, 0.2, 0.2))[0]);
+	glUniform3fv( glGetUniformLocation( program, "directionalLight.ambient"), 1, &(glm::vec3(0.0, 0.0, 0.0))[0]);
 	glUniform3fv( glGetUniformLocation( program, "directionalLight.diffuse"), 1, &(glm::vec3(1.0, 1.0, 1.0))[0]);
 	glUniform3fv( glGetUniformLocation( program, "directionalLight.specular"), 1, &(glm::vec3(1.0, 1.0, 1.0))[0]);
 
 	// Fonte de luz pontual
 	glUniform3fv( glGetUniformLocation( program, "pointLight.position"), 1, &point_pos[0]);
-	glUniform3fv( glGetUniformLocation( program, "pointLight.ambient"), 1, &(glm::vec3(0.1, 0.1, 0.1))[0]);
+	glUniform3fv( glGetUniformLocation( program, "pointLight.ambient"), 1, &(glm::vec3(0.2, 0.2, 0.2))[0]);
 	glUniform3fv( glGetUniformLocation( program, "pointLight.diffuse"), 1, &(glm::vec3(1.0, 1.0, 1.0))[0]);
 	glUniform3fv( glGetUniformLocation( program, "pointLight.specular"), 1, &(glm::vec3(1.0, 1.0, 1.0))[0]);
 	glUniform1f( glGetUniformLocation( program, "pointLight.constant"), 1.0f);
@@ -53,8 +53,6 @@ void Lightning::Update(GLuint program, GLFWwindow* window) {
 	int DirectionaltLightB = glfwGetKey(window, GLFW_KEY_2);
 	int PonctualLightB = glfwGetKey(window, GLFW_KEY_3);
 
-
-
 	if (AmbientLightB == GLFW_PRESS) {
 		GLuint ambientLightU = glGetUniformLocation(program, "ambientLight.ambient");
 		switch (ambientLight)
@@ -65,7 +63,7 @@ void Lightning::Update(GLuint program, GLFWwindow* window) {
 				break;
 			case false:
 				ambientLight = true;
-				glUniform3f(ambientLightU, 1.0, 1.0, 1.0);
+				glUniform3f(ambientLightU, 0.1, 0.1, 0.1);
 				break;
 		
 		}
@@ -88,8 +86,8 @@ void Lightning::Update(GLuint program, GLFWwindow* window) {
 
 			case false: 
 				directLight = true;
-				glUniform3f(directLightUA, 1.0, 1.0, 1.0);
-				glUniform3f(directLightUD, 2.0, 2.0, 2.0);
+				glUniform3f(directLightUA, 0.2, 0.2, 0.2);
+				glUniform3f(directLightUD, 1.0, 1.0, 1.0);
 				glUniform3f(directLightUS, 1.0, 1.0, 1.0);
 				break;
 		}

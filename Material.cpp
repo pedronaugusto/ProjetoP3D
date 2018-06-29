@@ -110,10 +110,10 @@ void Material::LoadTexture(const char *path) {
 
 void Material::LoadLightningInfo(GLuint program) {
 	
-	glProgramUniform3fv(program, glGetUniformLocation(program, "material.emissive"), 1, &(glm::vec3(0.0f, 0.0f, 0.0f)[0]));
-	glProgramUniform3fv(program, glGetUniformLocation(program, "material.ambient"), 1, &ka[0]);
-	glProgramUniform3fv(program, glGetUniformLocation(program, "material.diffuse"), 1, &kd[0]);
-	glProgramUniform3fv(program, glGetUniformLocation(program, "material.specular"), 1, &ks[0]);
-	glProgramUniform1f(program, glGetUniformLocation(program, "material.shininess"), ns);
+	glProgramUniform3fv(program, glGetUniformLocation(program, "mat.emissive"), 1, &(glm::vec3(0.0f, 0.0f, 0.0f)[0]));
+	glProgramUniform3fv(program, glGetUniformLocation(program, "mat.ambient"), 1, &ka[0]);
+	glProgramUniform3fv(program, glGetUniformLocation(program, "mat.diffuse"), 1, &kd[0]);
+	glProgramUniform3fv(program, glGetUniformLocation(program, "mat.specular"), 1, &ks[0]);
+	glProgramUniform1f(program, glGetUniformLocation(program, "mat.shininess"), ns);
 	
 }

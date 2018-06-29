@@ -98,13 +98,13 @@ void main(){
 
 vec4 calcAmbientLight(AmbientLight light) {
 	// Cálculo da contribuição da fonte de luz ambiente global, para a cor do objeto.
-	vec4 ambient = vec4(mat.ambient * light.ambient, 1.0);
+	vec4 ambient = vec4(mat.ambient + light.ambient, 1.0);
 	return ambient;
 }
 
 vec4 calcDirectionalLight(DirectionalLight light) {
 	// Cálculo da reflexão da componente da luz ambiente.
-	vec4 ambient = vec4(mat.ambient * light.ambient, 1.0);
+	vec4 ambient = vec4(mat.ambient + light.ambient, 1.0);
 
 	// Cálculo da reflexão da componente da luz difusa.
 	vec3 lightDirectionEyeSpace = (View * vec4(light.direction, 0.0)).xyz;
@@ -132,7 +132,7 @@ vec4 calcDirectionalLight(DirectionalLight light) {
 
 vec4 calcPointLight(PointLight light) {
 	// Cálculo da reflexão da componente da luz ambiente.
-	vec4 ambient = vec4(mat.ambient * light.ambient, 1.0);
+	vec4 ambient = vec4(light.ambient , 1.0);
 
 	// Cálculo da reflexão da componente da luz difusa.
 	//vec3 lightPositionEyeSpace = mat3(View) * light.position;
@@ -140,7 +140,7 @@ vec4 calcPointLight(PointLight light) {
 	vec3 L = normalize(lightPositionEyeSpace - vPositionEye);
 	vec3 N = normalize(vNormalEye);
 	float NdotL = max(dot(N, L), 0.0);
-	vec4 diffuse = vec4(mat.diffuse * light.diffuse, 1.0) * NdotL;
+	vec4 diffuse = vec4(mat.diffuse , 1.0) * NdotL;
 
 	// Cálculo da reflexão da componente da luz especular.
 	// Como os cálculos estão a ser realizados nas coordenadas do olho, então a câmara está na posição (0,0,0).
@@ -153,7 +153,7 @@ vec4 calcPointLight(PointLight light) {
 	vec3 R = reflect(-L, N);
 	float RdotV = max(dot(R, V), 0.0);
 	//float NdotH = max(dot(N, H), 0.0);	// Modelo Blinn-Phong
-	vec4 specular = pow(RdotV, mat.shininess) * vec4(light.specular * mat.specular, 1.0);
+	vec4 specular = pow(RdotV, mat.shininess) * vec4(mat.specular, 1.0);
 	
 	// attenuation
 	float dist = length(mat3(View) * light.position - vPositionEye);	// Cálculo da distância entre o ponto de luz e o vértice
